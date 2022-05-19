@@ -1,32 +1,35 @@
 import { useState } from "react";
 
-export default function Todo({ todo, onUpdate }) {
+export default function Todo({ todo, onUpdate, onDelete }) {
   const [isEdit, setIsEdit] = useState(false);
 
   function FormEdit() {
     const [todoTitle, setTodoTitle] = useState(todo.title);
-    function handleSubmit(e) {
-      e.preventDefault();
-    }
 
     function handleChange(e) {
       const value = e.target.value;
       setTodoTitle(value);
     }
     function handleClick(e) {
-      onUpdate(item.id, item.title);
+      if (todoTitle === "") {
+        setIsEdit(false);
+        return;
+      }
+      onUpdate(todo.id, todoTitle);
       setIsEdit(false);
     }
 
     return (
-      <form className="todoUpdateForm" onSubmit={handleSubmit}>
+      <form className="todoUpdateForm">
         <input
           type="text"
           value={todoTitle}
           className="todoInput"
           onChange={handleChange}
         />
-        <button onClick={handleClick}>Update</button>
+        <button className="buttonUpdate" onClick={handleClick}>
+          Update
+        </button>
       </form>
     );
   }
@@ -34,8 +37,18 @@ export default function Todo({ todo, onUpdate }) {
   function TodoElement() {
     return (
       <div className="todoInfo">
-        {todo.title} <button onClick={() => setIsEdit(true)}>Editar</button>{" "}
-        <button className="button">Borrar</button>{" "}
+        <span className="todoTitle"> {todo.title} </span>
+        <button className="button" onClick={() => setIsEdit(true)}>
+          Editar
+        </button>
+        <button
+          className="buttonDelete"
+          onClick={e => {
+            onDelete(todo.id);
+          }}
+        >
+          Borrar
+        </button>
       </div>
     );
   }

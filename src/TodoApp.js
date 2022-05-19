@@ -19,47 +19,91 @@ import { useState } from "react";
 import Todo from "./Todo";
 
 export default function TodoApp() {
-  const [title, setTitle] = useState("Hola");
-  // * Definimos estado para guardar los estados
-  const [todos, setTodos] = useState([]);
+  const [errorMsg, setErrorMsg] = useState(false);
 
-  function handleChange(e) {
-    const value = e.target.value;
-    setTitle(value);
-  }
+  function ErrorMsg() {
+    function loadErrorMsg(e) {
+      e.preventDefault();
+      setErrorMsg(false);
+    }
 
-  function handleSubmit(e) {
-    e.preventDefault();
-
-    const newTodo = {
-      id: crypto.randomUUID(),
-      title,
-      completed: false,
-    };
-
-    const newTodos = [...todos, newTodo];
-    setTodos(newTodos);
-  }
-
-  function handleUpdate(id, title) {}
-
-  return (
-    <div className="todoContainer">
-      <form className="todoCreateForm" onSubmit={handleSubmit}>
-        <input onChange={handleChange} className="todoInput" value={title} />
+    return (
+      <div className="error">
+        <span> No puedes ingresar espacios en blanco </span>
         <input
-          type="submit"
-          value="Create Todo"
-          className="buttonCreate"
+          type="button"
+          className="button-error"
+          onClick={loadErrorMsg}
+          value="X"
         ></input>
-        {title}
-      </form>
-
-      <div className="todosContainer">
-        {todos.map(todo => (
-          <Todo key={todo.id} todo={todo} onUpdate={handleUpdate} />
-        ))}
       </div>
-    </div>
-  );
+    );
+  }
+
+  function ContainerTodo() {
+    const [title, setTitle] = useState("");
+
+    // * Definimos estado para guardar los estados
+    const [todos, setTodos] = useState([]);
+    function handleChange(e) {
+      const value = e.target.value;
+
+      setTitle(value);
+    }
+
+    function handleSubmit(e) {
+      e.preventDefault();
+
+      if (title === "") setErrorMsg(true);
+
+      const newTodo = {
+        id: crypto.randomUUID(),
+        title,
+        completed: false,
+      };
+
+      const newTodos = [...todos, newTodo];
+      setTodos(newTodos);
+      setTitle("");
+    }
+
+    function handleUpdate(id, title) {
+      const temp = [...todos];
+      const item = temp.find(item => item.id === id);
+      item.title = title;
+      setTodos(temp);
+    }
+
+    function handleDelete(id) {
+      const temp = [...todos];
+      const newArr = temp.filter(item => item.id !== id);
+      setTodos(newArr);
+    }
+
+    return (
+      <div className="todoContainer">
+        <form className="todoCreateForm" onSubmit={handleSubmit}>
+          <input onChange={handleChange} className="todoInput" value={title} />
+          <input
+            type="submit"
+            value="Create Todo"
+            className="buttonCreate"
+          ></input>
+        </form>
+
+        <div className="todosContainer">
+          {todos.map(todo => (
+            <Todo
+              key={todo.id}
+              todo={todo}
+              onUpdate={handleUpdate}
+              onDelete={handleDelete}
+            />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  return <>{errorMsg ? <ErrorMsg /> : <ContainerTodo />} </>;
 }
